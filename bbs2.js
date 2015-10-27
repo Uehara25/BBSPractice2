@@ -39,6 +39,9 @@ function onRequest(request, response)
 			sendRegisterHTML();
 		}
 
+	}else if(request.url == '/logout'){
+		logout();
+		sendLogoutHTML();
 	}else if(request.url == '/404'){
 		send404HTML();
 	}else{
@@ -55,6 +58,11 @@ function onRequest(request, response)
 	{
 		console.log("ログインは未対応。　何もせずメインにリダイレクトします");
 		redirect("/");
+	}
+
+	function logout()
+	{
+		console.log("ログアウトはまだ未対応");
 	}
 
 	function isLoggedin()
@@ -76,6 +84,15 @@ function onRequest(request, response)
 	function send404HTML()
 	{
 		fs.readFile("./resources/404.html", 'utf-8', function(err, chunk){
+			response.writeHeader(200, {'Content-Type': 'text/html; charset=utf8'});
+			response.write(chunk);
+			response.end();
+		});
+	}
+
+	function sendLogoutHTML()
+	{
+		fs.readFile("./resources/logout.html", 'utf-8', function(err, chunk){
 			response.writeHeader(200, {'Content-Type': 'text/html; charset=utf8'});
 			response.write(chunk);
 			response.end();
