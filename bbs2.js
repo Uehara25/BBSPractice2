@@ -1,6 +1,7 @@
 var http = require("http")
 	,qs = require("querystring")
-	,fs = require("fs");
+	,fs = require("fs")
+	,usermanager = require('./usermanager.js');
 
 var ADRESS = 'localhost'
 	,PORT = '5000';
@@ -12,7 +13,7 @@ function onRequest(request, response)
 	if(request.url == '/'){
 		if(request.method == 'POST'){
 			
-			if(isLoggedin()){
+			if(usermanager.isLoggedin()){
 				postData();
 				sendMainHTML();
 			}else{
@@ -26,7 +27,8 @@ function onRequest(request, response)
 	}else if(request.url == '/login'){
 
 		if(request.method == 'POST'){
-			login();
+			usermanager.login();
+			redirect("/");
 		}else{
 			sendLoginHTML();
 		}
@@ -34,13 +36,14 @@ function onRequest(request, response)
 	}else if(request.url == '/register'){
 
 		if(request.method == 'POST'){
-			register();
+			usermanager.register();
+			redirect("/login");
 		}else{
 			sendRegisterHTML();
 		}
 
 	}else if(request.url == '/logout'){
-		logout();
+		usermanager.logout();
 		sendLogoutHTML();
 	}else if(request.url == '/404'){
 		send404HTML();
@@ -52,28 +55,6 @@ function onRequest(request, response)
 	{
 		response.writeHead(302, {'Location': location});
 		response.end();
-	}
-
-	function login()
-	{
-		console.log("ログインは未対応。　何もせずメインにリダイレクトします");
-		redirect("/");
-	}
-
-	function logout()
-	{
-		console.log("ログアウトはまだ未対応");
-	}
-
-	function isLoggedin()
-	{
-		return true;
-	}
-
-	function register()
-	{
-		console.log("登録は未対応。　何もせずログインにリダイレクトします");
-		redirect("/login");
 	}
 
 	function postData()
