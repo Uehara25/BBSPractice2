@@ -36,8 +36,30 @@ function onRequest(request, response)
 	}else if(request.url == '/register'){
 
 		if(request.method == 'POST'){
-			usermanager.register();
-			redirect("/login");
+            request.data = '';
+            request.on('data', function(chunk){
+                request.data += chunk;
+                try{
+					usermanager.register(request, response);
+					redirect("/login");
+				} catch(e) {
+					console.log(e.message);
+					if (e.message === undefined){
+						redirect("/");
+					}else if (e.message == "名前が入力されていません"){
+						redirect("/register");
+					}else if (e.message == "パスワードが設定されていません"){
+						redirect("/register");
+					}else if (e.message == "同じ名前のユーザーがすでに存在しています"){
+						redirect("/register");
+					}else if (e.message == "パスワードの強度が弱すぎます"){
+						redirect("/register");
+					}else{
+						console.log("なんだこれ");
+						redirect("/");
+					}
+				}
+            });
 		}else{
 			sendRegisterHTML();
 		}
