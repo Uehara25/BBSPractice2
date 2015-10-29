@@ -112,7 +112,7 @@ exports.isLoggedin = function(request, response, callback)
 
 /*
 request から情報を読み取って照合。
-登録可能なら登録し、登録不可能なら理由の文字列で例外を返す。
+登録可能なら登録し、登録不可能なら理由を添えて例外を返す。
 */
 exports.register = function(request, response)
 {
@@ -171,7 +171,7 @@ exports.register = function(request, response)
 	return;
 }
 
-function isContainNumber(text)
+function isContainNotAlphabet(text)
 {
 	// 特殊文字なんかも数字と判定されてしまう。今はこれで、そのうち修正すること
 	var notazAZ = /^[A-Za-z]+$/;
@@ -180,7 +180,7 @@ function isContainNumber(text)
 
 function checkPassStrong(pass)
 {
-	if(isContainNumber(pass) && pass.length >= 5){
+	if(isContainNotAlphabet(pass) && pass.length >= 5){
 		return true;
 	}
 	return false;
