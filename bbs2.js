@@ -10,7 +10,9 @@ var server = http.createServer(onRequest);
 
 function onRequest(request, response)
 {
-	if(request.url == '/'){
+	switch (request.url) {
+	case '/':
+
 		if(request.method == 'POST'){
 			
 			if(usermanager.isLoggedin()){
@@ -23,8 +25,9 @@ function onRequest(request, response)
 		}else{
 			sendMainHTML();
 		}
+		break;
 
-	}else if(request.url == '/login'){
+	case '/login':
 
 		if(request.method == 'POST'){
 			usermanager.login();
@@ -32,8 +35,9 @@ function onRequest(request, response)
 		}else{
 			sendLoginHTML();
 		}
+		break;
 
-	}else if(request.url == '/register'){
+	case '/register':
 
 		if(request.method == 'POST'){
             request.data = '';
@@ -63,14 +67,21 @@ function onRequest(request, response)
 		}else{
 			sendRegisterHTML();
 		}
+		break;
 
-	}else if(request.url == '/logout'){
+	case '/logout':
+
 		usermanager.logout();
 		sendLogoutHTML();
-	}else if(request.url == '/404'){
+		break;
+
+	case '/404':
 		send404HTML();
-	}else{
+		break;
+
+	default:
 		redirect('/404');
+
 	}
 
 	function redirect(location)
