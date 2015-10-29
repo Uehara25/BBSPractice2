@@ -1,6 +1,7 @@
-var mysql = require('mysql')
-	,crypto = require('crypto')
-	,querystring = require("querystring");
+var mysql 		= require('mysql'),
+	crypto 		= require('crypto'),
+	querystring = require("querystring"),
+	cookie		= require("cookie");
 
 var connection = mysql.createConnection({
 	user: 'bbs',
@@ -11,7 +12,6 @@ var connection = mysql.createConnection({
 /*
 name, pass, id
 */
-// 仕様を確定する元気がないので明日頑張る。
 
 
 /*
@@ -21,6 +21,7 @@ exports.login = function(request, response)
 {
 	console.log("ログインは未対応。");
 }
+
 
 /*
 exports.logind = function()
@@ -44,14 +45,69 @@ exports.logout = function(request, response)
 
 /*
 */
-exports.isLoggedin = function(request, response)
+
+
+/*
+	非同期ゆえ、実装は少し特殊
+	checkIdExists(name, function(e, ret){
+		if (ret) {
+			// true
+		} else {
+			// false
+		}
+	});
+
+*/ 
+function isIdExist(id, callback)
 {
-	var cookie = request.headers.cookie;
-	var id = cookie.id;
-	if(id === undefined){
-		return false;
-	}
-	return true;
+	var connection = mysql.createConnection({
+		user: 'bbs',
+		password: 'bbs',
+		database: 'bbspractice2'
+	});
+
+	var query = connection.query("select id from users", function(err, result, fields){
+		var ret = false;
+		if (err) {
+			return callback(err);
+		}
+		for (var i in result) {
+			console.log(result[i].id);
+			if(result[i].id == id) {
+				ret = true;
+			}
+		}
+		callback(null, ret);
+		connection.end();
+	});
+}
+
+/*	実装
+	isLoggedin(req, res, function(err, ret){
+		if(err){
+			return;
+		}
+
+		if(ret){
+			// true
+		}else{
+			// false
+		}
+	})
+*/
+exports.isLoggedin = function(request, response, callback)
+{
+	var cookieValues = cookie.parse(request.headers.cookie);
+	var id = cookieValues.id;
+
+	isIdExist(id, function(err, exist){
+		if (err) {
+			callback(err);
+		} else {
+			callback(null, exist);
+		}
+	});
+
 }
 
 /*
@@ -77,13 +133,6 @@ exports.register = function(request, response)
 		err.message = "パスワードが設定されていません";
 		throw err;
 	}
-
-/*
-	if(checkNameExists(name)) {
-		err.message = "同じ名前のユーザーがすでに存在します";
-		throw err;
-	}
-*/
 
 	if(!checkPassStrong(pass)){
 		err.message = "パスワードの強度が弱すぎます";

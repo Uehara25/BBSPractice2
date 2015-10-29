@@ -15,12 +15,18 @@ function onRequest(request, response)
 
 		if(request.method == 'POST'){
 			
-			if(usermanager.isLoggedin()){
-				postData();
-				sendMainHTML();
-			}else{
-				sendRegisterHTML();
-			}
+			usermanager.isLoggedin(request, response, function(err, ret){
+				if (err) {
+					console.log(err);
+				}
+
+				if (ret) {
+					postData();
+					sendMainHTML();
+				} else {
+					sendRegisterHTML();
+				}
+			});
 
 		}else{
 			sendMainHTML();
@@ -40,8 +46,9 @@ function onRequest(request, response)
 	case '/register':
 
 		if(request.method == 'POST'){
-            request.data = '';
-            request.on('data', function(chunk){
+
+ 	        	request.data = '';
+    	        request.on('data', function(chunk){
                 request.data += chunk;
                 try{
 					usermanager.register(request, response);
@@ -64,9 +71,13 @@ function onRequest(request, response)
 					}
 				}
             });
+
 		}else{
+
 			sendRegisterHTML();
+
 		}
+
 		break;
 
 	case '/logout':
