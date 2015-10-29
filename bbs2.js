@@ -36,8 +36,25 @@ function onRequest(request, response)
 	case '/login':
 
 		if(request.method == 'POST'){
-			usermanager.login();
-			redirect("/");
+
+ 	    	request.data = '';
+            request.on('data', function(chunk){
+ 	           	request.data += chunk;
+ 	           	usermanager.login(request, response, function(err, success, id) {
+					if (err) {
+						console.log(err);
+					}
+	
+					if (success) {
+						console.log("inpost " + id);
+						response.setHeader('Set-Cookie', ['id = ' + id]);
+						redirect('/');
+					} else {
+						redirect("/login");
+					}
+				});
+			});
+
 		}else{
 			sendLoginHTML();
 		}
@@ -90,6 +107,12 @@ function onRequest(request, response)
 		send404HTML();
 		break;
 
+	case '/success':
+		response.setHeader('Set-Cookie', ['id = ' + request.id]);
+		response.writeHead({'Content-Type': 'text/plain'});
+		response.write("success");
+		response.end();
+		break;
 	default:
 		redirect('/404');
 

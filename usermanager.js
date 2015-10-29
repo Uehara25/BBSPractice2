@@ -14,27 +14,100 @@ name, pass, id
 */
 
 
-/*
-まず名前が存在しなければ
-*/
-exports.login = function(request, response)
-{
-	console.log("ログインは未対応。");
-}
 
-
-/*
-exports.logind = function()
+function getId(name, callback)
 {
-	connection.query ('SELECT * FROM users;', function(err, results, fields){
-		console.log('---results---');
-		console.log(results);
-		console.log('---fields---');
-		console.log(fields);
-		console.log('---end---');
+	var connection = mysql.createConnection({
+		user: 'bbs',
+		password: 'bbs',
+		database: 'bbspractice2'
+	});
+
+	var query = connection.query("select id from users where name=?", name, function(err, result, fields){
+
+		connection.end();
+		if (err) {
+			return callback(err);
+		}
+		// todo: とりあえずそのままにしてあるfor文を取り除く。
+		var id = "";
+		for (var i in result) {
+			console.log(result[i]);
+			id = result[i].id;
+		}
+		callback(null, id);
 	});
 }
-*/
+
+exports.login = function(request, response, callback)
+{
+	console.log("ログインは現在実装中。");
+
+	var query = querystring.parse(request.data);
+	var name = query.author;
+	var pass = query.password;
+
+	console.log(name + ":" + pass + "を検証します");
+
+	checkNameExists(name, function(err, exist){
+		if (err) {
+			callback(err);
+		}
+
+		if (exist) {
+			console.log("名前は存在しました");
+			checkPassCorrect(name, pass, function(err, correct){
+				if (err) {
+					callback(err);
+				}
+
+				if (correct) {
+					console.log("パスワードが一致しました");
+
+					getId(name, function(err, id){
+						if (err) {
+							console.log(err);
+						}
+						callback(err, correct, id)
+					});
+				} else {
+					console.log("パスワードは一致しませんでした");
+					callback(err);
+				}
+			});
+		} else {
+			console.log("名前" + name +"は存在しませんでした");
+			callback(err);
+		}
+	});
+}
+
+
+function checkPassCorrect(name, pass, callback)
+{
+	var connection = mysql.createConnection({
+		user: 'bbs',
+		password: 'bbs',
+		database: 'bbspractice2'
+	});
+
+	var query = connection.query("select pass from users where name=?", name, function(err, result, fields){
+
+		connection.end();
+		if (err) {
+			return callback(err);
+		}
+		// todo: とりあえずそのままにしてあるfor文を取り除く。
+		var ret = false;
+		for (var i in result) {
+			console.log(result[i]);
+			if(result[i].pass == pass) {
+				ret = true;
+			}
+		}
+		callback(null, ret);
+	});
+}
 
 /*
 */
