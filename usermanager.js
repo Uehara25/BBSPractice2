@@ -74,12 +74,8 @@ function checkPassCorrect(name, pass, callback)
 		if (err) {
 			return callback(err);
 		}
-		// todo: とりあえずそのままにしてあるfor文を取り除く。
-		var ret = false;
-		for (var i in result) {
-			if(result[i].pass == pass) {
-				ret = true;
-			}
+		if(result[0].pass == pass) {
+			ret = true;
 		}
 		callback(null, ret);
 	});
@@ -108,18 +104,18 @@ function isIdExist(id, callback)
 		database: 'bbspractice2'
 	});
 
-	var query = connection.query("select id from users", function(err, result, fields){
-		var ret = false;
+	var query = connection.query("select * from users where id=?", id, function(err, result, fields){
+		connection.end();
 		if (err) {
 			return callback(err);
 		}
-		for (var i in result) {
-			if(result[i].id == id) {
-				ret = true;
-			}
+
+		var ret = false;
+		if (id[0] !== undefined) {
+			ret = true;
 		}
+
 		callback(null, ret);
-		connection.end();
 	});
 }
 
@@ -222,16 +218,14 @@ function checkNameExist(name, callback)
 		database: 'bbspractice2'
 	});
 
-	var query = connection.query("select name from users", function(err, result, fields){
+	var query = connection.query("select id from users where name=?", name, function(err, result, fields){
 	connection.end();
 		var ret = false;
 		if (err) {
 			return callback(err);
 		}
-		for (var i in result) {
-			if(result[i].name == name) {
-				ret = true;
-			}
+		if(result[0] !== undefined) {
+			ret = true;
 		}
 		callback(null, ret);
 	});
