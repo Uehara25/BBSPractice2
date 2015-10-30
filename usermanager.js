@@ -3,17 +3,6 @@ var mysql 		= require('mysql'),
 	querystring = require("querystring"),
 	cookie		= require("cookie");
 
-var connection = mysql.createConnection({
-	user: 'bbs',
-	password: 'bbs',
-	database: 'bbspractice2'
-});
-
-/*
-name, pass, id
-*/
-
-
 
 function getId(name, callback)
 {
@@ -29,27 +18,21 @@ function getId(name, callback)
 		if (err) {
 			return callback(err);
 		}
-		// todo: とりあえずそのままにしてあるfor文を取り除く。
 		var id = "";
-		for (var i in result) {
-			console.log(result[i]);
-			id = result[i].id;
-		}
+		id = result[0].id;
 		callback(null, id);
 	});
 }
 
 exports.login = function(request, response, callback)
 {
-	console.log("ログインは現在実装中。");
-
 	var query = querystring.parse(request.data);
 	var name = query.author;
 	var pass = query.password;
 
 	console.log(name + ":" + pass + "を検証します");
 
-	checkNameExists(name, function(err, exist){
+	checkNameExist(name, function(err, exist){
 		if (err) {
 			callback(err);
 		}
@@ -212,7 +195,7 @@ exports.register = function(request, response)
 		throw err;
 	}
 
-	checkNameExists(name, function(e, ret){
+	checkNameExist(name, function(e, ret){
 		console.log(ret);
 		if(!ret){
 			var id = createHash(name + pass);
@@ -228,13 +211,13 @@ exports.register = function(request, response)
 				database: 'bbspractice2'
 			});
 			connection.query('INSERT INTO users SET ?', values, function(err, result){
-				connection.end();
 				if(err){
 					console.log("登録に失敗しました");
 					throw err;
 				}else{
 					console.log("登録に成功しました");
 				}
+				connection.end();
 			});
 			
 		}
@@ -246,7 +229,6 @@ exports.register = function(request, response)
 
 function isContainNotAlphabet(text)
 {
-	// 特殊文字なんかも数字と判定されてしまう。今はこれで、そのうち修正すること
 	var notazAZ = /^[A-Za-z]+$/;
 	return !notazAZ.test(text)
 }
@@ -259,7 +241,7 @@ function checkPassStrong(pass)
 	return false;
 }
 
-function checkNameExists(name, callback)
+function checkNameExist(name, callback)
 {
 	var connection = mysql.createConnection({
 		user: 'bbs',
@@ -268,6 +250,7 @@ function checkNameExists(name, callback)
 	});
 
 	var query = connection.query("select name from users", function(err, result, fields){
+	connection.end();
 		var ret = false;
 		if (err) {
 			return callback(err);
@@ -279,7 +262,6 @@ function checkNameExists(name, callback)
 			}
 		}
 		callback(null, ret);
-		connection.end();
 	});
 }
 
