@@ -94,13 +94,6 @@ function checkPassCorrect(name, pass, callback)
 
 /*
 */
-exports.logout = function(request, response)
-{
-	console.log("ログアウトはまだ未対応");
-}
-
-/*
-*/
 
 
 /*

@@ -92,7 +92,7 @@ function onRequest(request, response)
 
 	case '/logout':
 
-		usermanager.logout();
+		response.setHeader('Set-Cookie', ['id = null']);
 		sendLogoutHTML();
 		break;
 
