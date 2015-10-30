@@ -46,7 +46,6 @@ function onRequest(request, response)
 					}
 	
 					if (success) {
-						console.log("inpost " + id);
 						response.setHeader('Set-Cookie', ['id = ' + id]);
 						redirect('/');
 					} else {
@@ -73,10 +72,8 @@ function onRequest(request, response)
 					}
 	
 					if (succeed) {
-						console.log("登録できました");
 						redirect("/");
 					} else {
-						console.log("登録に失敗しました");
 						redirect("/register");
 					}
 				});

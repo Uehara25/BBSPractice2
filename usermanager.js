@@ -30,22 +30,18 @@ exports.login = function(request, response, callback)
 	var name = query.author;
 	var pass = query.password;
 
-	console.log(name + ":" + pass + "を検証します");
-
 	checkNameExist(name, function(err, exist){
 		if (err) {
 			callback(err);
 		}
 
 		if (exist) {
-			console.log("名前は存在しました");
 			checkPassCorrect(name, pass, function(err, correct){
 				if (err) {
 					callback(err);
 				}
 
 				if (correct) {
-					console.log("パスワードが一致しました");
 
 					getId(name, function(err, id){
 						if (err) {
@@ -54,12 +50,10 @@ exports.login = function(request, response, callback)
 						callback(err, correct, id)
 					});
 				} else {
-					console.log("パスワードは一致しませんでした");
 					callback(err);
 				}
 			});
 		} else {
-			console.log("名前" + name +"は存在しませんでした");
 			callback(err);
 		}
 	});
@@ -83,7 +77,6 @@ function checkPassCorrect(name, pass, callback)
 		// todo: とりあえずそのままにしてあるfor文を取り除く。
 		var ret = false;
 		for (var i in result) {
-			console.log(result[i]);
 			if(result[i].pass == pass) {
 				ret = true;
 			}
@@ -121,7 +114,6 @@ function isIdExist(id, callback)
 			return callback(err);
 		}
 		for (var i in result) {
-			console.log(result[i].id);
 			if(result[i].id == id) {
 				ret = true;
 			}
@@ -172,7 +164,6 @@ exports.register = function(request, response, callback)
 
 
 	checkNameExist(name, function(err, ret){
-		console.log(ret);
 		if(!ret){
 			var id = createHash(name + pass);
 		
@@ -238,7 +229,6 @@ function checkNameExist(name, callback)
 			return callback(err);
 		}
 		for (var i in result) {
-			console.log(result[i].name);
 			if(result[i].name == name) {
 				ret = true;
 			}
