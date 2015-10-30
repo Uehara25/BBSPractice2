@@ -62,34 +62,27 @@ function onRequest(request, response)
 
 	case '/register':
 
-		if(request.method == 'POST'){
+		if(request.method == 'POST') {
 
- 	        	request.data = '';
-    	        request.on('data', function(chunk){
+ 	        request.data = '';
+    	    request.on('data', function(chunk) {
                 request.data += chunk;
-                try{
-					usermanager.register(request, response);
-					redirect("/login");
-				} catch(e) {
-					console.log(e.message);
-					if (e.message === undefined){
-						redirect("/");
-					}else if (e.message == "名前が入力されていません"){
-						redirect("/register");
-					}else if (e.message == "パスワードが設定されていません"){
-						redirect("/register");
-					}else if (e.message == "同じ名前のユーザーがすでに存在しています"){
-						redirect("/register");
-					}else if (e.message == "パスワードの強度が弱すぎます"){
-						redirect("/register");
-					}else{
-						console.log("なんだこれ");
-						redirect("/");
+				usermanager.register(request, response, function(err, succeed) {
+					if(err) {
+						console.log(err);
 					}
-				}
-            });
+	
+					if (succeed) {
+						console.log("登録できました");
+						redirect("/");
+					} else {
+						console.log("登録に失敗しました");
+						redirect("/register");
+					}
+				});
+			});
 
-		}else{
+		} else {
 
 			sendRegisterHTML();
 
@@ -107,12 +100,6 @@ function onRequest(request, response)
 		send404HTML();
 		break;
 
-	case '/success':
-		response.setHeader('Set-Cookie', ['id = ' + request.id]);
-		response.writeHead({'Content-Type': 'text/plain'});
-		response.write("success");
-		response.end();
-		break;
 	default:
 		redirect('/404');
 

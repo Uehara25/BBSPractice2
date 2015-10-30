@@ -170,32 +170,15 @@ exports.isLoggedin = function(request, response, callback)
 request から情報を読み取って照合。
 登録可能なら登録し、登録不可能なら理由を添えて例外を返す。
 */
-exports.register = function(request, response)
+exports.register = function(request, response, callback)
 {
 	var query = querystring.parse(request.data);
 
 	var name = query.author;
 	var pass = query.password;
 
-	console.log(query);
 
-	var err = new Error();
-	if(name === ""){
-		err.message = "名前が入力されていません";
-		throw err;
-	}
-
-	if(pass === ""){
-		err.message = "パスワードが設定されていません";
-		throw err;
-	}
-
-	if(!checkPassStrong(pass)){
-		err.message = "パスワードの強度が弱すぎます";
-		throw err;
-	}
-
-	checkNameExist(name, function(e, ret){
+	checkNameExist(name, function(err, ret){
 		console.log(ret);
 		if(!ret){
 			var id = createHash(name + pass);
@@ -205,21 +188,27 @@ exports.register = function(request, response)
 				pass: pass,
 				id: id
 			};
+
 			var connection = mysql.createConnection({
 				user: 'bbs',
 				password: 'bbs',
 				database: 'bbspractice2'
 			});
+
+			if(!checkPassStrong(pass)) {
+				return callback(null, false);
+			}
+
 			connection.query('INSERT INTO users SET ?', values, function(err, result){
-				if(err){
-					console.log("登録に失敗しました");
-					throw err;
-				}else{
-					console.log("登録に成功しました");
-				}
 				connection.end();
-			});
-			
+				if(err){
+					return callback(null, false);
+				}else{
+					return callback(null, true);
+				}
+			});	
+		} else {
+			return callback(null, false);
 		}
 	});
 
