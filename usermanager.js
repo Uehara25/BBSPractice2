@@ -96,7 +96,7 @@ function checkPassCorrect(name, pass, callback)
 	});
 
 */ 
-function isIdExist(id, callback)
+function checkIdExist(id, callback)
 {
 	var connection = mysql.createConnection({
 		user: 'bbs',
@@ -120,7 +120,7 @@ function isIdExist(id, callback)
 }
 
 /*	実装
-	isLoggedin(req, res, function(err, ret){
+	checkClientLoggedin(req, res, function(err, ret){
 		if(err){
 			return;
 		}
@@ -132,12 +132,12 @@ function isIdExist(id, callback)
 		}
 	})
 */
-exports.isLoggedin = function(request, response, callback)
+exports.checkClientLoggedin = function(request, response, callback)
 {
 	var cookieValues = cookie.parse(request.headers.cookie);
 	var id = cookieValues.id;
 
-	isIdExist(id, function(err, exist){
+	checkIdExist(id, function(err, exist){
 		if (err) {
 			callback(err);
 		} else {
@@ -196,7 +196,7 @@ exports.register = function(request, response, callback)
 	return;
 }
 
-function isContainNotAlphabet(text)
+function checkContainNotAlphabet(text)
 {
 	var notazAZ = /^[A-Za-z]+$/;
 	return !notazAZ.test(text)
@@ -204,7 +204,7 @@ function isContainNotAlphabet(text)
 
 function checkPassStrong(pass)
 {
-	if(isContainNotAlphabet(pass) && pass.length >= 5){
+	if(checkContainNotAlphabet(pass) && pass.length >= 5){
 		return true;
 	}
 	return false;
