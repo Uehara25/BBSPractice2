@@ -1,6 +1,7 @@
 var http = require("http")
 	,qs = require("querystring")
-	,fs = require("fs");
+	,fs = require("fs")
+	,usermanager = require('./usermanager.js');
 
 var ADRESS = 'localhost'
 	,PORT = '5000';
@@ -9,63 +10,102 @@ var server = http.createServer(onRequest);
 
 function onRequest(request, response)
 {
-	if(request.url == '/'){
+	switch (request.url) {
+	case '/':
+
 		if(request.method == 'POST'){
 			
-			if(isLoggedin()){
-				postData();
-				sendMainHTML();
-			}else{
-				sendRegisterHTML();
-			}
+			usermanager.isLoggedin(request, response, function(err, ret){
+				if (err) {
+					console.log(err);
+				}
+
+				if (ret) {
+					postData();
+					sendMainHTML();
+				} else {
+					sendRegisterHTML();
+				}
+			});
 
 		}else{
 			sendMainHTML();
 		}
+		break;
 
-	}else if(request.url == '/login'){
+	case '/login':
 
 		if(request.method == 'POST'){
-			login();
+
+ 	    	request.data = '';
+            request.on('data', function(chunk){
+ 	           	request.data += chunk;
+ 	           	usermanager.login(request, response, function(err, success, id) {
+					if (err) {
+						console.log(err);
+					}
+	
+					if (success) {
+						response.setHeader('Set-Cookie', ['id = ' + id]);
+						redirect('/');
+					} else {
+						redirect("/login");
+					}
+				});
+			});
+
 		}else{
 			sendLoginHTML();
 		}
+		break;
 
-	}else if(request.url == '/register'){
+	case '/register':
 
-		if(request.method == 'POST'){
-			register();
-		}else{
+		if(request.method == 'POST') {
+
+ 	        request.data = '';
+    	    request.on('data', function(chunk) {
+                request.data += chunk;
+				usermanager.register(request, response, function(err, succeed) {
+					if(err) {
+						console.log(err);
+					}
+	
+					if (succeed) {
+						redirect("/");
+					} else {
+						redirect("/register");
+					}
+				});
+			});
+
+		} else {
+
 			sendRegisterHTML();
+
 		}
 
-	}else if(request.url == '/404'){
+		break;
+
+	case '/logout':
+
+		response.setHeader('Set-Cookie', ['id = null']);
+		sendLogoutHTML();
+		break;
+
+	case '/404':
 		send404HTML();
-	}else{
+		break;
+
+	default:
 		redirect('/404');
+
 	}
 
 	function redirect(location)
 	{
 		response.writeHead(302, {'Location': location});
 		response.end();
-	}
-
-	function login()
-	{
-		console.log("ログインは未対応。　何もせずメインにリダイレクトします");
-		redirect("/");
-	}
-
-	function isLoggedin()
-	{
-		return true;
-	}
-
-	function register()
-	{
-		console.log("登録は未対応。　何もせずログインにリダイレクトします");
-		redirect("/login");
 	}
 
 	function postData()
@@ -76,6 +116,15 @@ function onRequest(request, response)
 	function send404HTML()
 	{
 		fs.readFile("./resources/404.html", 'utf-8', function(err, chunk){
+			response.writeHeader(200, {'Content-Type': 'text/html; charset=utf8'});
+			response.write(chunk);
+			response.end();
+		});
+	}
+
+	function sendLogoutHTML()
+	{
+		fs.readFile("./resources/logout.html", 'utf-8', function(err, chunk){
 			response.writeHeader(200, {'Content-Type': 'text/html; charset=utf8'});
 			response.write(chunk);
 			response.end();

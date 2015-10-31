@@ -19,4 +19,8 @@
 	<input type=submit value="ログイン">
 </form>
 
+<form method=GET action="/logout">
+	<input type=submit value="ログアウト">
+</form>
+
 </div>
