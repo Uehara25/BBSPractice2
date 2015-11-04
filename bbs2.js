@@ -114,7 +114,6 @@ function onRequest(request, response)
 
 	function postData(callback)
 	{
-		console.log("ポストは実装中");
 	    request.data = '';
         request.on('data', function(chunk){
            	request.data += chunk;
