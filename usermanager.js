@@ -111,7 +111,8 @@ function checkIdExist(id, callback)
 		}
 
 		var ret = false;
-		if (id[0] !== undefined) {
+		if (result[0] !== undefined) {
+			console.log(result[0]);
 			ret = true;
 		}
 
