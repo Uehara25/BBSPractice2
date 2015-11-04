@@ -134,6 +134,10 @@ function checkIdExist(id, callback)
 */
 exports.checkClientLoggedin = function(request, response, callback)
 {
+	if (request.headers.cookie === undefined) {
+		return callback(null, false);
+	}
+
 	var cookieValues = cookie.parse(request.headers.cookie);
 	var id = cookieValues.id;
 

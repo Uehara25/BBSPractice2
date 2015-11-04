@@ -15,8 +15,8 @@ function onRequest(request, response)
 	case '/':
 
 		if(request.method == 'POST'){
-			
-			usermanager.isLoggedin(request, response, function(err, ret){
+
+			usermanager.checkClientLoggedin(request, response, function(err, ret){
 				if (err) {
 					console.log(err);
 				}
@@ -155,17 +155,41 @@ function onRequest(request, response)
 		var header = fs.readFileSync("./resources/header.txt", 'utf-8');
 		response.write(header);
 
-		sendMainContent();
+		sendMainContent(null, function(){
 
-		var footer = fs.readFileSync("./resources/footer.txt", 'utf-8');
-		response.write(footer);
+			var footer = fs.readFileSync("./resources/footer.txt", 'utf-8');
+			response.write(footer);
 
-		response.end();
+			response.end();
+		});
+
 	}
 
-	function sendMainContent(){
-		fs.readFileSync
-		response.write("<br><br><h1>本体テキスト</h1><br><br>")
+	function sendMainContent(err, callback){
+
+        postCounter = 0;
+        // 読み込んだ行が名前なのか本文なのか判定するため。毎回+1して偶奇で判断
+        tempCnt = 0;
+
+		var rl = readline.createInterface({
+            input: fs.createReadStream('./resources/data.txt')
+        });
+
+        rl.on('line', function(line){
+            if(tempCnt % 2 == 0){
+                // 名前
+                response.write("<dt>" + postCounter + " 名前:<b>" + line + "</b>");
+                postCounter += 1;
+            }else{
+                // 本文
+                response.write("<dd> " + line + "<br><br>");
+            }
+            tempCnt += 1;
+        })
+
+        rl.on('close', function(){
+            callback();
+        })
 	}
 
 }
