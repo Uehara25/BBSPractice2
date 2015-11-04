@@ -20,7 +20,7 @@ function getId(name, callback)
 		}
 		var id = "";
 		id = result[0].id;
-		callback(null, id);
+		return callback(null, id);
 	});
 }
 
@@ -32,13 +32,13 @@ exports.login = function(request, response, callback)
 
 	checkNameExist(name, function(err, exist){
 		if (err) {
-			callback(err);
+			return callback(err);
 		}
 
 		if (exist) {
 			checkPassCorrect(name, pass, function(err, correct){
 				if (err) {
-					callback(err);
+					return callback(err);
 				}
 
 				if (correct) {
@@ -47,14 +47,14 @@ exports.login = function(request, response, callback)
 						if (err) {
 							console.log(err);
 						}
-						callback(err, correct, id)
+						return callback(err, correct, id)
 					});
 				} else {
-					callback(err);
+					return callback(err);
 				}
 			});
 		} else {
-			callback(err);
+			return callback(err);
 		}
 	});
 }
@@ -77,7 +77,7 @@ function checkPassCorrect(name, pass, callback)
 		if(result[0].pass == pass) {
 			ret = true;
 		}
-		callback(null, ret);
+		return callback(null, ret);
 	});
 }
 
@@ -115,7 +115,7 @@ function checkIdExist(id, callback)
 			ret = true;
 		}
 
-		callback(null, ret);
+		return callback(null, ret);
 	});
 }
 
@@ -143,9 +143,9 @@ exports.checkClientLoggedin = function(request, response, callback)
 
 	checkIdExist(id, function(err, exist){
 		if (err) {
-			callback(err);
+			return callback(err);
 		} else {
-			callback(null, exist);
+			return callback(null, exist);
 		}
 	});
 
@@ -263,7 +263,7 @@ function checkNameExist(name, callback)
 		if(result[0] !== undefined) {
 			ret = true;
 		}
-		callback(null, ret);
+		return callback(null, ret);
 	});
 }
 
