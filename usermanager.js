@@ -151,6 +151,38 @@ exports.checkClientLoggedin = function(request, response, callback)
 
 }
 
+exports.getIdFromCookie = function(request, response)
+{
+	if (request.headers.cookie === undefined) {
+		return null;
+	}
+
+	var cookieValues = cookie.parse(request.headers.cookie);
+	return cookieValues.id;
+}
+
+exports.getNameFromId = function(id, callback)
+{
+
+	var connection = mysql.createConnection({
+		user: 'bbs',
+		password: 'bbs',
+		database: 'bbspractice2'
+	});
+
+	var query = connection.query("select name from users where id=?", id, function(err, result, fields){
+		var ret = false;
+		if (err) {
+			return callback(err);
+		}
+		if(result[0] === undefined) {
+			return callback(new Error());
+		}
+		return callback(null, result[0].name);
+	});
+
+}
+
 /*
 request から情報を読み取って照合。
 登録可能なら登録し、登録不可能なら理由を添えて例外を返す。

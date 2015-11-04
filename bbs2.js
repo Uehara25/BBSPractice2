@@ -121,16 +121,19 @@ function onRequest(request, response)
         });
         request.on('end',function(){
            	var query = qs.parse(request.data);
-           	var author = trimAuthor(query.author);
-           	var maintext = trimMaintext(query.maintext);
-           	data = author + '\n' + maintext + '\n';
-           	fs.appendFile('./resources/data.txt', data, 'utf8', function(err){
-           		if (err) {
-           			console.log(err);
-           			return callback(err);
-           		}
-           		return callback();
-           });
+           	var id = usermanager.getIdFromCookie(request ,response)
+           	usermanager.getNameFromId(id, function(err, name){
+	          	var author = trimAuthor(name);
+	          	var maintext = trimMaintext(query.maintext);
+	          	data = author + '\n' + maintext + '\n';
+	          	fs.appendFile('./resources/data.txt', data, 'utf8', function(err){
+	          		if (err) {
+	          			console.log(err);
+	          			return callback(err);
+	          		}
+	          		return callback();
+	          	});
+           	});
         });
 	}
 
