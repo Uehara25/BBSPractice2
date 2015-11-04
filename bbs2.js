@@ -1,7 +1,8 @@
-var http = require("http")
-	,qs = require("querystring")
-	,fs = require("fs")
-	,usermanager = require('./usermanager.js');
+var http 		= require("http"),
+	qs 			= require("querystring"),
+	fs 			= require("fs"),
+	readline 	= require("readline"),
+	usermanager = require('./usermanager.js');
 
 var ADRESS = 'localhost'
 	,PORT = '5000';
@@ -163,6 +164,7 @@ function onRequest(request, response)
 	}
 
 	function sendMainContent(){
+		fs.readFileSync
 		response.write("<br><br><h1>本体テキスト</h1><br><br>")
 	}
 
