@@ -7,6 +7,8 @@ var http 		= require("http"),
 var ADRESS = 'localhost'
 	,PORT = '5000';
 
+var NGWords = removeBOM(fs.readFileSync("./resources/NGWords.txt", 'utf8')).split(",");
+
 var server = http.createServer(onRequest);
 
 function onRequest(request, response)
@@ -22,8 +24,9 @@ function onRequest(request, response)
 				}
 
 				if (ret) {
-					postData();
-					sendMainHTML();
+					postData(function(){
+						sendMainHTML();
+					});
 				} else {
 					sendRegisterHTML();
 				}
@@ -109,9 +112,26 @@ function onRequest(request, response)
 		response.end();
 	}
 
-	function postData()
+	function postData(callback)
 	{
-		console.log("ポストは未作成");
+		console.log("ポストは実装中");
+	    request.data = '';
+        request.on('data', function(chunk){
+           	request.data += chunk;
+        });
+        request.on('end',function(){
+           	var query = qs.parse(request.data);
+           	var author = trimAuthor(query.author);
+           	var maintext = trimMaintext(query.maintext);
+           	data = author + '\n' + maintext + '\n';
+           	fs.appendFile('./resources/data.txt', data, 'utf8', function(err){
+           		if (err) {
+           			console.log(err);
+           			return callback(err);
+           		}
+           		return callback();
+           });
+        });
 	}
 
 	function send404HTML()
@@ -192,6 +212,44 @@ function onRequest(request, response)
         })
 	}
 
+	function trimAuthor(author){
+        author = escapeHtmlSpecialChar(author);
+        author = replaceNGWords(author);
+        return author
+    }
+
+    function trimMaintext(maintext){
+        maintext = escapeHtmlSpecialChar(maintext);
+        maintext = maintext.replace(/(\r\n|\n|\r)/g,'<br>');
+        maintext = replaceNGWords(maintext);
+        return maintext;
+    }
+
+    function escapeHtmlSpecialChar(text)
+    {
+        if(text === undefined){
+            return '';
+        }else{
+            text = text.replace(/&/g, '&amp;');
+            text = text.replace(/</g, '&lt');
+            text = text.replace(/>/g, '&gt;');
+            return text;
+        }
+    }
+
+    function replaceNGWords(text)
+    {
+        for(word in NGWords){
+            text = text.replace(NGWords[word], Array(NGWords[word].length + 1).join("*"));
+        }
+        return text;
+    }
+
+}
+
+function removeBOM(text){
+    text = text.replace(/^\uFEFF/, '');
+    return text;
 }
 
 server.listen(PORT, ADRESS);
