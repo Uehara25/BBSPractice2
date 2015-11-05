@@ -28,7 +28,7 @@ function onRequest(request, response)
 						sendMainHTML();
 					});
 				} else {
-					sendRegisterHTML();
+					redirect("/login");
 				}
 			});
 
